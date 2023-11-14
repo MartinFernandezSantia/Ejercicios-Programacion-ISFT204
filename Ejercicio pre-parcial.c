@@ -102,12 +102,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include <strings.h>
 
 #define RANGO1 12
 #define RANGO2 15
 #define RANGO3 16
 #define RANGO4 18
+#define ESTUDIANTES 5
 
 typedef struct estudiante
 {
@@ -117,9 +119,77 @@ typedef struct estudiante
     char tipo_vacuna;
 }estudiante;
 
+int cargarEstudiantes(estudiante *vec);
+
 int main()
 {
-    int total_comorbilidad = 0, total_no_vac = 0;
-    float procentaje_vac_comorbilidad = 0;
+    int total_comorbilidad = 0, total_no_vac = 0, estudiantes_moderna_rango1 = 0, estudiantes_moderna_rango2 = 0;
+    float porcentaje_vacunados = 0;
+    estudiante vec_estudiantes[ESTUDIANTES];
+
+    cargarEstudiantes(vec_estudiantes);
+
+    for (int i=0; i<ESTUDIANTES; i++)
+    {
+        if (vec_estudiantes[i].comorbilidad == true)
+        {
+            total_comorbilidad++;
+        }
+
+        if (vec_estudiantes[i].vacuna == true)
+        {
+            porcentaje_vacunados++;
+        }
+        else
+        {
+            total_no_vac++;
+        }
+
+        if (vec_estudiantes[i].edad >= RANGO1 && vec_estudiantes[i].edad <= RANGO2 && tolower(vec_estudiantes[i].tipo_vacuna) == 'm')
+        {
+            estudiantes_moderna_rango1++;
+        }
+        if (vec_estudiantes[i].edad >= RANGO3 && vec_estudiantes[i].edad <= RANGO4 && tolower(vec_estudiantes[i].tipo_vacuna) == 'm')
+        {
+            estudiantes_moderna_rango2++;
+        }
+    }
+    porcentaje_vacunados = porcentaje_vacunados * 100 / ESTUDIANTES;
+
+    printf("\nCantidad con comorbilidades: %d\nPorcentaje vacunados: %.2f%%\nCantidad no vacunados: %d\nCantidad vacunados con MODERNA entre 12 y 15: %d\nCantidad vacunados con MODERNA entre 16 y 18: %d\n",
+           total_comorbilidad, porcentaje_vacunados, total_no_vac, estudiantes_moderna_rango1, estudiantes_moderna_rango2);
+
+    return 0;
 }
 
+int cargarEstudiantes(estudiante *vec)
+{
+   for (int i=0; i<ESTUDIANTES; i++)
+   {
+       do
+       {
+           printf("Ingrese la edad del estudiante N%d (Entre 12 y 18 inclusives): ", i);
+           scanf(" %d", &vec[i].edad);
+       }while(vec[i].edad < RANGO1 || vec[i].edad > RANGO4);
+       do
+       {
+           printf("El estudiante posee comorbilidades? (1=Si, 0=No): ");
+           scanf(" %d", &vec[i].comorbilidad);
+       }while(vec[i].comorbilidad != 1 && vec[i].comorbilidad != 0);
+       do
+       {
+           printf("El estudiante se aplico alguna vacuna Covid? (1=Si, 0=No): ");
+           scanf(" %d", &vec[i].vacuna);
+       }while(vec[i].vacuna != 1 && vec[i].vacuna != 0);
+       if (vec[i].vacuna == 1)
+       {
+           do
+           {
+               printf("Cual vacuna se aplico el estudiante? (M=Moderna, C=Covishield): ");
+               scanf(" %c", &vec[i].tipo_vacuna);
+           }while(tolower(vec[i].tipo_vacuna) != 'm' && tolower(vec[i].tipo_vacuna) != 'c');
+       }
+   }
+
+   return 0;
+}
